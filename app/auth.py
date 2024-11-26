@@ -27,9 +27,9 @@ def login_get():
 def signup_post():
     form: SignupForm = SignupForm()
 
-    validate_email()
-    validate_username()
-    validate_password()
+    validate_email(form.email.data)
+    validate_username(form.username.data)
+    validate_password(form.password.data)
 
     if form.validate_on_submit():
         stmt = (
@@ -66,8 +66,8 @@ def login_post():
 
     form: LoginForm = LoginForm()
 
-    validate_email()
-    validate_password()
+    validate_email(form.email.data)
+    validate_password(form.password.data)
 
     if form.validate_on_submit():
         stmt = (
@@ -86,13 +86,13 @@ def login_post():
             flash("Invalid password.", "password-error")
             return redirect(url_for('auth.login_get'))
 
+        next = request.args.get('next')
         if form.remember.data == True:
             login_user(user[0], remember=True, duration=timedelta(days=5))
         else:
             login_user(user[0], duration=timedelta(hours=1))
-        return redirect(url_for('view.index'))
+        return redirect(url_for(next or 'view.index'))
 
-    # flash('Invalid data.', 'login_error')
     return redirect(url_for('auth.login_get'))
 
 @auth.route('/logout')
@@ -103,18 +103,13 @@ def logout():
 
 
 
-def validate_email():
-    email = request.form['email']
-
-    matches = re.search(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email)
-    if not matches:
-        flash('Invalid email', 'invalid_email')
+def validate_email(email: str):
+    if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        flash('Invalid email format', 'invalid_email')
         return redirect(url_for('auth.login_get'))
     
     
-def validate_username():
-    username = request.form['username']
-
+def validate_username(username: str):
     if len(username) < 8:
         flash('Username must be at least 8 characters long', 'short_username')
         return redirect(url_for('auth.login_get'))
@@ -123,9 +118,7 @@ def validate_username():
         return redirect(url_for('auth.login_get'))
 
 
-def validate_password():
-    password = request.form['password']
-
+def validate_password(password: str):
     if len(password) < 8:
         flash('Password must be at least 8 characters long', 'short_password')
         return redirect(url_for('auth.login_get'))

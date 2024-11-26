@@ -11,7 +11,7 @@ function validateEmail() {
         */
         const inputValue = input.value;
         if(!regex.test(inputValue)) {
-            displayErrorMsg(errorMessage, 'Invalid email address')
+            displayErrorMsg(errorMessage, 'Invalid email format')
             input.parentNode.appendChild(errorMessage);
         } else {
             hideErrorMsg(errorMessage, emailFlash)
@@ -38,12 +38,9 @@ function validateUsername() {
         const inputValue = input.value;
         if(inputValue.length() < 8) {
             displayErrorMsg(errorMessage, 'Username must be at least 8 characters long.')
-            input.parentNode.appendChild(errorMessage);
         } 
         else if(regex.test(inputValue)) {
-
             displayErrorMsg(errorMessage, 'Username cannot contain special characters.')
-            input.parentNode.appendChild(errorMessage);
         }
         else {
             hideErrorMsg(errorMessage, usernameFlash)
