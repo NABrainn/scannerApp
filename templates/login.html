@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<div class=" vh-100 bg-light">
+    <h3 class="text-center p-3">Login</h3>
+    <form method="POST" action="/login" novalidate>
+        <div class="row justify-content-center mb-3" hx-target="this" hx-swap="outerHTML">
+            <div class="col-6 col-md-4">
+                <input class="form-control w-100" id="email-input" type="email" name="email" placeholder="Email">
+                <span class="" id="email-error">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category == 'invalid_email' %}
+                            <span class="text-danger email-flash">{{ message }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                </span>
+
+            </div>
+        </div>
+        <div class="row justify-content-center" hx-target="this" hx-swap="outerHTML">
+            <div class="col-6 col-md-4 mb-3 w-40">
+                <input class="form-control w-100" id="password-input" type="password" name="password" placeholder="Password">
+                <span class="" id="password-error">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category == 'short_password' %}
+                            <span class="text-danger password-flash">{{ message }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                </span>
+            </div>
+        </div>
+        <input type="hidden" id="csrf_token" name="csrf_token" value="{{csrf_token()}}">
+        <div class="row justify-content-center">
+            <div class="col-md-4 d-flex flex-column flex-md-row justify-content-between mb-3">
+                <div class="col-md-4 fs-6 text-center text-md-start">
+                    <label class="checkbox text-nowrap text-center text-md-start">
+                        <input type="checkbox" name="remember">
+                        <span>Remember me</span>
+                    </label>
+                </div>
+                <div class="col-md-5 fs-6 text-nowrap text-center text-md-end">
+                    <span class="fs-6">
+                        <a href="/signup">Create account</a>
+                    </span>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-6 col-md-4">
+                    <button class="btn btn-primary w-100">Login</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script src="{{ url_for('static', filename='form.js') }}"></script>
+{% endblock %}

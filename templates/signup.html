@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="column is-4 is-offset-4 vh-100 bg-light">
+    <h3 class="text-center p-3">Sign Up</h3>
+    <div class="box">
+        <form method="POST" action="/signup" novalidate>
+            <input type="hidden" id="csrf_token" name="csrf_token" value="{{csrf_token()}}">
+            <div class="row justify-content-center" hx-target="this" hx-swap="outerHTML">
+                <div class="col-6 col-md-4 mb-3 w-40">
+                    <input class="form-control" id="email-input" type="email" name="email" placeholder="Email" autofocus="" value="{{ email }}">
+                    <span class="" id="email-error">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                {% if category == 'invalid_email' %}
+                                <span class="text-danger email-flash">{{ message }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                    </span>
+                </div>
+            </div>
+            <div class="row justify-content-center" hx-target="this" hx-swap="outerHTML">
+                <div class="col-6 col-md-4 mb-3 w-40">
+                    <input class="form-control" id="username-input" type="text" name="username" placeholder="Username" autofocus="" value="{{ username }}">
+                    <span class="" id="username-error">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                {% if category == 'short_username' %}
+                                <span class="text-danger username-flash">{{ message }}</span>
+                                {% endif %}
+                                {% if category == 'special_username' %}
+                                <span class="text-danger username-flash">{{ message }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                    </span>
+                </div>
+            </div>
+            <div class="row justify-content-center" hx-target="this" hx-swap="outerHTML">
+                <div class="col-6 col-md-4 mb-3 w-40">
+                    <input class="form-control" id="password-input" type="password" name="password" placeholder="Password" value="{{ password }}">
+                    <span class="" id="password-error"></span>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category == 'signup_error' %}
+                            <span class="text-danger password-flash">{{ message }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <a href="/login" class="text-center mb-3">I already have an account</a>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-6 col-md-4">
+                    <button class="btn btn-primary w-100">Sign Up</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
