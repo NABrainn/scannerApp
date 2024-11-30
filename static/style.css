@@ -80,7 +80,7 @@ a {
 }
 
 .hidden {
-	visibility:hidden
+	display:none
 }
 /* input[type="email"]:hover {
 border-color: #999;
