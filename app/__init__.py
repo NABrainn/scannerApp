@@ -1,19 +1,14 @@
 from flask import Flask
-from .db_repo import query_first
-from .views import view
-from .models import User, init_models
-from .auth import auth
+
+from .config import DevelopmentConfig
+
 from flask_login import LoginManager
 from sqlalchemy import select
-from .config import Config
 from flask_wtf.csrf import CSRFProtect
-
+from sqlalchemy.orm import Session
 
 def create_app():
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
-    app.config['SECRET_KEY'] = 'b69e5f14067dc6fd89dc321cdd3ed05f29f2854c9e0aa5c199b117dd511e25c0'
-    app.register_blueprint(view)
-    app.register_blueprint(auth)
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login_get'
@@ -22,8 +17,17 @@ def create_app():
     csrf = CSRFProtect()
     csrf.init_app(app)
 
-    init_models()
+    app.config.from_object(DevelopmentConfig())
 
+    #import modules as soon as app_context is available
+    with app.app_context():
+        from .views import view
+        from .auth import auth
+        from .models import User, create_all
+
+        app.register_blueprint(view)
+        app.register_blueprint(auth)
+        create_all()
 
     @login_manager.user_loader
     def load_user(user_id: str) -> User:
@@ -31,15 +35,17 @@ def create_app():
             select(User)
             .where(User.get_id() == user_id)
         )
-        user = query_first(stmt)
+        with Session(app.config['ENGINE']) as session:
+            user = session.execute(stmt).first()
         print(user)
         if user:
             return user[0]
         else:
             return None
+    
     return app
-
 
 if(__name__ == '__main__'):
     app = create_app()
     app.run(debug=True)
+
