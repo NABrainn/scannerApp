@@ -1,9 +1,10 @@
+import { err, ok } from './error.js';
+
 function validateEmail() {
 
     const input = document.getElementById('email-input')
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const errorMessage = document.getElementById('email-error')
-    const emailFlash = document.querySelector('.email-flash')
+    const target = document.getElementById('email-error')
 
     input.addEventListener('input', (e) => {
         /**
@@ -11,10 +12,9 @@ function validateEmail() {
         */
         const inputValue = input.value;
         if(!regex.test(inputValue)) {
-            displayErrorMsg(errorMessage, 'Invalid email format')
-            input.parentNode.appendChild(errorMessage);
+            displayErrorMsg(target, 'Invalid email format')
         } else {
-            hideErrorMsg(errorMessage, emailFlash)
+            hideErrorMsg(target)
         }
     })
 }
@@ -24,12 +24,14 @@ function validateUsername() {
     const input = document.getElementById('username-input')
     //IF NO INPUT - GTF OUT!!!!
     if(!input) {
-        return;
+        return err('Element is null')
+    } else{
+        ok(`Element is ${input}`)
     }
 
     const regex = /\W/;
-    const errorMessage = document.getElementById('username-error')
-    const usernameFlash = document.querySelector('.username-flash')
+    const target = document.getElementById('username-error')
+
 
     input.addEventListener('input', (e) => {
         /**
@@ -37,32 +39,24 @@ function validateUsername() {
         */
         const inputValue = input.value;
         if(inputValue.length() < 8) {
-            displayErrorMsg(errorMessage, 'Username must be at least 8 characters long.')
+            displayErrorMsg(target, 'Username must be at least 8 characters long.')
         } 
         else if(regex.test(inputValue)) {
-            displayErrorMsg(errorMessage, 'Username cannot contain special characters.')
+            displayErrorMsg(target, 'Username cannot contain special characters.')
         }
         else {
-            hideErrorMsg(errorMessage, usernameFlash)
+            hideErrorMsg(target)
         }
     })
 }
 
-function displayErrorMsg(msg, string) {
-    msg.classList.remove('hidden')
-    msg.textContent = string;
-    msg.classList.add('text-danger')
+function displayErrorMsg(target, string) {
+    target.classList.remove('hidden')
+    target.textContent = string;
 }
 
-function hideErrorMsg(msg, flash) {
-    msg.classList.add('hidden')
-    if (msg) {
-        msg.remove();
-        if(flash) {
-            flash.remove();
-
-        }
-    }
+function hideErrorMsg(target) {
+    target.classList.add('hidden')
 }
 
 validateEmail();
