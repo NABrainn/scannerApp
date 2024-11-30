@@ -8,7 +8,7 @@
             <div class="row justify-content-center" hx-target="this" hx-swap="outerHTML">
                 <div class="col-6 col-md-4 mb-3 w-40">
                     <input class="form-control" id="email-input" type="email" name="email" placeholder="Email" autofocus="" value="{{ email }}">
-                    <span class="" id="email-error">
+                    <span class="text-danger" id="email-error">
                         {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                             {% for category, message in messages %}
@@ -24,7 +24,7 @@
             <div class="row justify-content-center" hx-target="this" hx-swap="outerHTML">
                 <div class="col-6 col-md-4 mb-3 w-40">
                     <input class="form-control" id="username-input" type="text" name="username" placeholder="Username" autofocus="" value="{{ username }}">
-                    <span class="" id="username-error">
+                    <span class="text-danger" id="username-error">
                         {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                             {% for category, message in messages %}
@@ -43,7 +43,7 @@
             <div class="row justify-content-center" hx-target="this" hx-swap="outerHTML">
                 <div class="col-6 col-md-4 mb-3 w-40">
                     <input class="form-control" id="password-input" type="password" name="password" placeholder="Password" value="{{ password }}">
-                    <span class="" id="password-error"></span>
+                    <span class="text-danger" id="password-error"></span>
                     {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
@@ -66,4 +66,5 @@
         </form>
     </div>
 </div>
+<script src="{{ url_for('static', filename='form.js') }}" type="module"></script>
 {% endblock %}

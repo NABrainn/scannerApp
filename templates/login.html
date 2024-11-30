@@ -6,11 +6,14 @@
         <div class="row justify-content-center mb-3" hx-target="this" hx-swap="outerHTML">
             <div class="col-6 col-md-4">
                 <input class="form-control w-100" id="email-input" type="email" name="email" placeholder="Email">
-                <span class="" id="email-error">
+                <span class="text-danger" id="email-error">
                     {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
                             {% if category == 'invalid_email' %}
+                            <span class="text-danger email-flash">{{ message }}</span>
+                            {% endif %}
+                            {% if category == 'email_error' %}
                             <span class="text-danger email-flash">{{ message }}</span>
                             {% endif %}
                         {% endfor %}
@@ -23,11 +26,14 @@
         <div class="row justify-content-center" hx-target="this" hx-swap="outerHTML">
             <div class="col-6 col-md-4 mb-3 w-40">
                 <input class="form-control w-100" id="password-input" type="password" name="password" placeholder="Password">
-                <span class="" id="password-error">
+                <span class="text-danger" id="password-error">
                     {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
                             {% if category == 'short_password' %}
+                            <span class="text-danger password-flash">{{ message }}</span>
+                            {% endif %}
+                            {% if category == 'password_error' %}
                             <span class="text-danger password-flash">{{ message }}</span>
                             {% endif %}
                         {% endfor %}
@@ -59,5 +65,5 @@
         </div>
     </form>
 </div>
-<script src="{{ url_for('static', filename='form.js') }}"></script>
+<script src="{{ url_for('static', filename='form.js') }}" type="module"></script>
 {% endblock %}
