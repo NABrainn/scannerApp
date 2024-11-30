@@ -1,9 +1,8 @@
+from flask import current_app
 from sqlalchemy import Boolean, String
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-
-from .config import Config
 
 
 class Base(DeclarativeBase):
@@ -24,7 +23,6 @@ class User(Base):
     def get_id():
         return str(id)
     
-    
     def get_active(self):
         return self.is_active
 
@@ -40,7 +38,11 @@ class Entity(Base):
     def __repr__(self) -> str:
         return f'Entity(id={self.id}, title={self.title})'
     
-def init_models():
-    Base.metadata.create_all(Config.engine)
+def create_all():
+    Base.metadata.create_all(current_app.config['ENGINE'])
+
+def drop_all():
+    Base.metadata.drop_all(current_app.config['ENGINE'])
+
 
 
