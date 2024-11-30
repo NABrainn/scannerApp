@@ -1,18 +1,18 @@
 from datetime import timedelta
 import re
-from sqlalchemy import select
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, g, redirect, render_template, request, url_for
+from sqlalchemy.orm import Session
 
+from .repository.user_repo import UserRepo
 from .forms import LoginForm, SignupForm
 from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_required, login_user, logout_user
-from sqlalchemy.orm import Session
-from .config import Config
-from .db_repo import query_first
 
 auth = Blueprint('auth', __name__)
+session = Session(current_app.config['ENGINE'])
 
+repo = UserRepo(session)
 
 @auth.route('/signup')
 def signup_get():
@@ -20,6 +20,7 @@ def signup_get():
 
 @auth.route('/login')
 def login_get():
+    print(current_app.config['ENGINE'])
     form = LoginForm()
     return render_template('login.html', form=form)
 
@@ -32,30 +33,21 @@ def signup_post():
     validate_password(form.password.data)
 
     if form.validate_on_submit():
-        stmt = (
-            select(User)
-            .where(User.email == form.email.data)
-            )  
 
-        user = query_first(stmt)
-        
+        user = repo.get_by_email(form.email.data)
 
         if user:
-            if user.tuple()[0].email == form.email.data:
+            if user.email == form.email.data:
                 flash('Email already taken', 'email-error')
                 return redirect(url_for('auth.signup_get'))
-            if user.tuple()[0].username == form.username.data:
+            if user.username == form.username.data:
                 flash('Username already taken.', 'username-error')
                 return redirect(url_for('auth.signup_get'))
         # create a new user with the form data. Hash the password so the plaintext version isn't saved.
         new_user = User(email=form.email.data, username=form.username.data, password=generate_password_hash(form.password.data, method='pbkdf2:sha256'))
 
         # add the new user to the database
-        with Session(Config.engine) as session:
-            session.add(new_user)
-            session.commit()
-
-        print('great success')
+        repo.create(new_user)
         return redirect(url_for('auth.login_get'))
     flash('Invalid data', 'signup-error')
     return redirect(url_for('auth.signup_get'))
@@ -70,29 +62,24 @@ def login_post():
     validate_password(form.password.data)
 
     if form.validate_on_submit():
-        stmt = (
-            select(User)
-            .where(User.email == form.email.data)
-        )
-
-        user = query_first(stmt)
+        
+        user = repo.get_by_email(form.email.data)      
         #check if email exists
         if user is None:
-            flash("Email does not exist.", "email-error")
+            flash("Email does not exist", "email_error")
             return redirect(url_for('auth.login_get'))
 
         #email exists
-        if not check_password_hash(user[0].password, form.password.data):
-            flash("Invalid password.", "password-error")
+        if not check_password_hash(user.password, form.password.data):
+            flash("Invalid password", "password_error")
             return redirect(url_for('auth.login_get'))
 
         next = request.args.get('next')
         if form.remember.data == True:
-            login_user(user[0], remember=True, duration=timedelta(days=5))
+            login_user(user, remember=True, duration=timedelta(days=5))
         else:
-            login_user(user[0], duration=timedelta(hours=1))
+            login_user(user, duration=timedelta(hours=1))
         return redirect(url_for(next or 'view.index'))
-
     return redirect(url_for('auth.login_get'))
 
 @auth.route('/logout')
@@ -100,7 +87,6 @@ def login_post():
 def logout():
     logout_user()
     return redirect(url_for('auth.login_get'))
-
 
 
 def validate_email(email: str):
@@ -113,6 +99,7 @@ def validate_username(username: str):
     if len(username) < 8:
         flash('Username must be at least 8 characters long', 'short_username')
         return redirect(url_for('auth.login_get'))
+    
     if not re.match(r'^[a-zA-Z0-9]+$', username):
         flash('Username cannot consist of special characters', 'special_username')
         return redirect(url_for('auth.login_get'))
